@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base lang="id" path="/" title="404 | Edwin Irfan" description="Halaman tidak ditemukan / Page not found">
+  <section class="container nf">
+    <p class="eyebrow">404</p>
+    <h1>Halaman tidak ditemukan</h1>
+    <p>Page not found.</p>
+    <div class="row">
+      <a class="btn btn-primary" href="/">Beranda</a>
+      <a class="btn btn-ghost" href="/en/">Home (English)</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { padding-block: 120px; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; }
+  p { color: var(--muted); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+</style>

@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import HomePage from '../components/HomePage.astro';
+import { profile } from '../data/profile';
+---
+<Base
+  lang="id"
+  path="/"
+  title={`${profile.name} | Full-Stack Developer`}
+  description="Portofolio Edwin Irfan Nuha Al Hadad: full-stack developer. Mobile app Flutter/Kotlin, backend NestJS/Express/Laravel, sistem POS, dan proyek RFID/NFC."
+>
+  <HomePage lang="id" />
+</Base>

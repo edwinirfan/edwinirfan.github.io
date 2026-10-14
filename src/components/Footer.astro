@@ -1,0 +1,56 @@
+---
+import Icon from './Icon.astro';
+import { type Lang, useT } from '../i18n/ui';
+import { profile } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container row">
+    <p>© {year} {profile.name}. {t('footer.built')}</p>
+    <div class="links">
+      <a href={`mailto:${profile.email}`} aria-label="Email"><Icon name="mail" size={18} /></a>
+      <a href={profile.linkedin} target="_blank" rel="noopener" aria-label="LinkedIn"><Icon name="linkedin" size={18} /></a>
+      <a href={profile.github} target="_blank" rel="noopener" aria-label="GitHub"><Icon name="github" size={18} /></a>
+      <a href={`https://wa.me/${profile.whatsapp}`} target="_blank" rel="noopener" aria-label="WhatsApp"><Icon name="whatsapp" size={18} /></a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-block: 28px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .links {
+    display: flex;
+    gap: 6px;
+  }
+  .links a {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+</style>

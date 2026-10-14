@@ -1,0 +1,173 @@
+---
+import Cover from './Cover.astro';
+import Icon from './Icon.astro';
+import { type Project, statusColor, titleOf } from '../data/projects';
+import { type Lang, localePath, tr, useT } from '../i18n/ui';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  featured?: boolean;
+}
+const { project: p, lang, featured = false } = Astro.props;
+const t = useT(lang);
+const href = localePath(lang, `/projects/${p.slug}/`);
+---
+<article class={`project-card card reveal ${featured ? 'featured' : ''}`} data-categories={p.categories.join(' ')}>
+  <a href={href} class="cover-link" tabindex="-1" aria-hidden="true">
+    <Cover project={p} eager={featured} />
+  </a>
+  <div class="body">
+    <div class="top">
+      <span class="status" style={`--status:${statusColor[p.status.kind]}`}>{tr(p.status.label, lang)}</span>
+      <span class="period">{tr(p.period, lang)}</span>
+    </div>
+    <h3><a href={href}>{titleOf(p, lang)}</a></h3>
+    <p class="tagline">{tr(p.tagline, lang)}</p>
+    <p class="role"><Icon name="briefcase" size={15} /> {tr(p.role, lang)}</p>
+    {
+      featured && p.stats && (
+        <dl class="mini-stats">
+          {p.stats.slice(0, 3).map((s) => (
+            <div>
+              <dt>{s.value}</dt>
+              <dd>{tr(s.label, lang)}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    <ul class="tags">
+      {p.stack.slice(0, featured ? 8 : 5).map((s) => <li class="chip">{s}</li>)}
+      {p.stack.length > (featured ? 8 : 5) && <li class="chip more">+{p.stack.length - (featured ? 8 : 5)}</li>}
+    </ul>
+    <a href={href} class="more-link">
+      {t('projects.view')} <Icon name="arrowRight" size={16} />
+    </a>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    transition: border-color 0.2s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .project-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 12px 12px;
+    flex: 1;
+  }
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .period {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  h3 {
+    font-size: 21px;
+    font-weight: 700;
+  }
+  h3 a:hover {
+    color: var(--accent);
+  }
+  .tagline {
+    color: var(--text-2);
+    font-size: 15px;
+  }
+  .role {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+  .more {
+    color: var(--muted);
+  }
+  .more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--accent);
+  }
+  .more-link :global(svg) {
+    transition: transform 0.2s ease;
+  }
+  .project-card:hover .more-link :global(svg) {
+    transform: translateX(4px);
+  }
+  .mini-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 4px 0;
+  }
+  .mini-stats div {
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+  }
+  .mini-stats dt {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .mini-stats dd {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+  .project-card[hidden] {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .featured {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .featured .cover-link :global(.cover) {
+      height: 100%;
+      aspect-ratio: auto;
+      min-height: 380px;
+    }
+    .featured .body {
+      padding: 22px 22px 18px 18px;
+    }
+    .featured h3 {
+      font-size: 28px;
+    }
+    .featured .tagline {
+      font-size: 16px;
+    }
+  }
+</style>

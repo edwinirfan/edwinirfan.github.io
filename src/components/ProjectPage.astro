@@ -1,0 +1,874 @@
+---
+import Icon from './Icon.astro';
+import Cover from './Cover.astro';
+import { type Project, projects, statusColor, categoryLabels, titleOf } from '../data/projects';
+import { type Lang, localePath, tr, useT } from '../i18n/ui';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+}
+const { project: p, lang } = Astro.props;
+const t = useT(lang);
+const idx = projects.findIndex((x) => x.slug === p.slug);
+const prev = projects[(idx - 1 + projects.length) % projects.length];
+const next = projects[(idx + 1) % projects.length];
+const home = localePath(lang, '/');
+const cell = (v: string | { id: string; en: string }) => (typeof v === 'string' ? v : tr(v, lang));
+
+const toc = [
+  { id: 'overview', label: t('cs.overview') },
+  { id: 'role', label: t('cs.role') },
+  { id: 'features', label: t('cs.features') },
+  { id: 'challenges', label: t('cs.challenges') },
+  ...(p.architecture ? [{ id: 'architecture', label: t('cs.architecture') }] : []),
+  ...(p.gallery ? [{ id: 'gallery', label: t('cs.gallery') }] : []),
+  ...(p.extra ? [{ id: 'extra', label: t('cs.extra') }] : []),
+  ...(p.next ? [{ id: 'next', label: t('cs.next') }] : []),
+];
+---
+<article style={`--c:${p.accent}`}>
+  <!-- Header -->
+  <header class="cs-hero">
+    <div class="cs-bg" aria-hidden="true"></div>
+    <div class="container">
+      <a class="back" href={`${home}#projects`}><Icon name="arrowLeft" size={16} /> {t('cs.back')}</a>
+      <div class="cs-head">
+        <div>
+          <div class="cs-badges">
+            <span class="status" style={`--status:${statusColor[p.status.kind]}`}>{tr(p.status.label, lang)}</span>
+            {p.categories.map((c) => <span class="chip">{tr(categoryLabels[c], lang)}</span>)}
+          </div>
+          <h1>{titleOf(p, lang)}</h1>
+          <p class="cs-tagline">{tr(p.tagline, lang)}</p>
+          {
+            p.links && (
+              <div class="cs-links">
+                {p.links.map((l) => (
+                  <a class="btn btn-ghost sm" href={l.href} target="_blank" rel="noopener">
+                    {tr(l.label, lang)} <Icon name="external" size={15} />
+                  </a>
+                ))}
+              </div>
+            )
+          }
+        </div>
+        <div class="cs-cover"><Cover project={p} eager /></div>
+      </div>
+
+      <dl class="facts">
+        <div><dt>{t('projects.role')}</dt><dd>{tr(p.role, lang)}</dd></div>
+        <div><dt>{t('cs.platform')}</dt><dd>{tr(p.platform, lang)}</dd></div>
+        <div><dt>{t('cs.users')}</dt><dd>{tr(p.users, lang)}</dd></div>
+        <div><dt>{t('cs.period')}</dt><dd>{tr(p.period, lang)}</dd></div>
+      </dl>
+
+      {
+        p.stats && (
+          <dl class="kpis">
+            {p.stats.map((s) => (
+              <div>
+                <dt>{s.value}</dt>
+                <dd>{tr(s.label, lang)}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+  </header>
+
+  <div class="container cs-layout">
+    <aside class="toc" aria-label="Table of contents">
+      <nav>
+        {toc.map((x) => <a href={`#${x.id}`}>{x.label}</a>)}
+      </nav>
+      <div class="toc-stack">
+        <h4>{t('cs.stack')}</h4>
+        <ul>{p.stack.map((s) => <li class="chip">{s}</li>)}</ul>
+      </div>
+    </aside>
+
+    <div class="cs-content">
+      <section id="overview" class="block">
+        <h2>{t('cs.overview')}</h2>
+        <p class="big">{tr(p.overview, lang)}</p>
+        <div class="problem">
+          <h3>{t('cs.problem')}</h3>
+          <p>{tr(p.problem, lang)}</p>
+        </div>
+      </section>
+
+      <section id="role" class="block">
+        <h2>{t('cs.role')}</h2>
+        <ul class="checklist">
+          {p.role_detail[lang].map((r) => (
+            <li><span><Icon name="check" size={15} /></span>{r}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="features" class="block">
+        <h2>{t('cs.features')}</h2>
+        <ul class="features">
+          {p.features.map((f) => (
+            <li>
+              <h3>{tr(f.title, lang)}</h3>
+              <p>{tr(f.body, lang)}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="challenges" class="block">
+        <h2>{t('cs.challenges')}</h2>
+        <ol class="challenges">
+          {p.challenges.map((c, i) => (
+            <li>
+              <span class="num">{String(i + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{tr(c.title, lang)}</h3>
+                <p>{tr(c.body, lang)}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {
+        p.architecture && (
+          <section id="architecture" class="block">
+            <h2>{t('cs.architecture')}</h2>
+            <div class="arch">
+              {p.architecture.map((layer, i) => (
+                <>
+                  {i > 0 && (
+                    <div class="arch-arrow" aria-hidden="true">
+                      <span />
+                    </div>
+                  )}
+                  <div class="arch-layer">
+                    <div class="arch-label">{tr(layer.label, lang)}</div>
+                    <div class="arch-nodes">
+                      {layer.nodes.map((n) => (
+                        <div class="arch-node">
+                          <strong>{n.name}</strong>
+                          <span>{tr(n.detail, lang)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        p.gallery && (
+          <section id="gallery" class="block">
+            <h2>{t('cs.gallery')}</h2>
+            <p class="hint">{t('cs.zoom')}</p>
+            {p.gallery.map((g) => (
+              <div class="g-group">
+                <h3>{tr(g.group, lang)}</h3>
+                <div class={`g-grid ${g.shots.every((s) => s.kind === 'mobile') ? 'all-mobile' : ''}`}>
+                  {g.shots.map((s) => (
+                    <figure class={`g-item ${s.kind}`}>
+                      <button
+                        type="button"
+                        class={s.kind === 'mobile' ? 'phone' : s.kind === 'diagram' ? 'diagram-frame' : 'browser'}
+                        data-zoom={s.src}
+                        data-caption={tr(s.caption, lang)}
+                        data-kind={s.kind}
+                        aria-label={tr(s.caption, lang)}
+                      >
+                        {s.kind === 'desktop' && (
+                          <div class="browser-bar">
+                            <span />
+                            <span />
+                            <span />
+                          </div>
+                        )}
+                        <img src={s.src} alt={tr(s.caption, lang)} loading="lazy" decoding="async" />
+                      </button>
+                      <figcaption>{tr(s.caption, lang)}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        )
+      }
+
+      {
+        p.extra && (
+          <section id="extra" class="block">
+            <h2>{t('cs.extra')}</h2>
+            {p.extra.map((e) => (
+              <div class="extra">
+                <h3>{tr(e.title, lang)}</h3>
+                {e.intro && <p>{tr(e.intro, lang)}</p>}
+                {e.bullets && (
+                  <ul class="bullets">
+                    {e.bullets[lang].map((b) => (
+                      <li>{b}</li>
+                    ))}
+                  </ul>
+                )}
+                {e.tables?.map((tb) => (
+                  <div class="table-wrap">
+                    {tb.title && <h4>{tr(tb.title, lang)}</h4>}
+                    <table>
+                      <thead>
+                        <tr>
+                          {tb.head.map((h) => (
+                            <th>{tr(h, lang)}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tb.rows.map((r) => (
+                          <tr>
+                            {r.map((c) => (
+                              <td>{cell(c)}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+                {e.callout && <p class="callout">{tr(e.callout, lang)}</p>}
+              </div>
+            ))}
+          </section>
+        )
+      }
+
+      {
+        p.next && (
+          <section id="next" class="block">
+            <h2>{t('cs.next')}</h2>
+            <p class="next-text">{tr(p.next, lang)}</p>
+          </section>
+        )
+      }
+
+      <div class="cs-cta">
+        <p>{t('cs.cta')}</p>
+        <a class="btn btn-primary" href={`${home}#contact`}>{t('cs.ctaBtn')} <Icon name="arrowRight" size={16} /></a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="container pager" aria-label="Projects">
+    <a href={localePath(lang, `/projects/${prev.slug}/`)} class="card">
+      <small><Icon name="arrowLeft" size={14} /> {t('cs.prev')}</small>
+      <strong>{titleOf(prev, lang)}</strong>
+    </a>
+    <a href={localePath(lang, `/projects/${next.slug}/`)} class="card right">
+      <small>{t('cs.nextProject')} <Icon name="arrowRight" size={14} /></small>
+      <strong>{titleOf(next, lang)}</strong>
+    </a>
+  </nav>
+</article>
+
+<style>
+  .cs-hero {
+    position: relative;
+    padding: 36px 0 48px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .cs-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(50% 60% at 90% 0%, color-mix(in srgb, var(--c) 20%, transparent), transparent 70%),
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 32px 32px;
+    mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .cs-head {
+    display: grid;
+    gap: 32px;
+    margin-top: 24px;
+    align-items: center;
+  }
+  .cs-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  h1 {
+    margin-top: 18px;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+  .cs-tagline {
+    margin-top: 14px;
+    font-size: 18px;
+    color: var(--text-2);
+    max-width: 620px;
+  }
+  .cs-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 22px;
+  }
+  .btn.sm {
+    height: 38px;
+    padding-inline: 14px;
+    font-size: 13.5px;
+    white-space: normal;
+    text-align: left;
+  }
+  .cs-cover {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 8px;
+    background: var(--bg-elev);
+    box-shadow: var(--shadow);
+  }
+  @media (min-width: 960px) {
+    .cs-head {
+      grid-template-columns: 1.05fr 1fr;
+      gap: 48px;
+    }
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 36px 0 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--border);
+  }
+  .facts div {
+    background: var(--bg-elev);
+    padding: 16px 18px;
+  }
+  .facts dt {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .facts dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  @media (min-width: 900px) {
+    .facts {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 16px 0 0;
+  }
+  .kpis div {
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--c) 7%, var(--bg-elev));
+    border: 1px solid color-mix(in srgb, var(--c) 22%, var(--border));
+  }
+  .kpis dt {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: color-mix(in srgb, var(--c) 70%, var(--text));
+  }
+  .kpis dd {
+    margin: 2px 0 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* Layout */
+  .cs-layout {
+    display: grid;
+    gap: 40px;
+    padding-block: 56px 32px;
+  }
+  .toc {
+    display: none;
+  }
+  @media (min-width: 1040px) {
+    .cs-layout {
+      grid-template-columns: 230px 1fr;
+      gap: 56px;
+    }
+    .toc {
+      display: block;
+      position: sticky;
+      top: 96px;
+      align-self: start;
+    }
+  }
+  .toc nav {
+    display: grid;
+    gap: 2px;
+    border-left: 2px solid var(--border);
+  }
+  .toc nav a {
+    padding: 6px 14px;
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .toc nav a:hover,
+  .toc nav a.active {
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  .toc-stack {
+    margin-top: 28px;
+  }
+  .toc-stack h4 {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .toc-stack ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .cs-content {
+    min-width: 0;
+  }
+  .block {
+    padding-bottom: 48px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 90px;
+  }
+  .block h2 {
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+  .big {
+    font-size: 18px;
+    color: var(--text-2);
+  }
+  .problem {
+    margin-top: 22px;
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    background: var(--bg-soft);
+    border-left: 3px solid var(--c);
+  }
+  .problem h3 {
+    font-size: 14px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .problem p {
+    margin-top: 8px;
+    color: var(--text-2);
+  }
+  .checklist {
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .checklist li {
+    display: flex;
+    gap: 12px;
+    color: var(--text-2);
+  }
+  .checklist li span {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-top: 1px;
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    color: color-mix(in srgb, var(--c) 80%, var(--text));
+  }
+  .features {
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+  .features li {
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+  }
+  .features h3 {
+    font-size: 16px;
+  }
+  .features p {
+    margin-top: 6px;
+    font-size: 14.5px;
+    color: var(--muted);
+  }
+  @media (min-width: 700px) {
+    .features {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .challenges {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 20px;
+  }
+  .challenges li {
+    display: flex;
+    gap: 18px;
+  }
+  .num {
+    flex: none;
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--c);
+    padding-top: 3px;
+    width: 26px;
+  }
+  .challenges h3 {
+    font-size: 17px;
+  }
+  .challenges p {
+    margin-top: 6px;
+    color: var(--text-2);
+    font-size: 15.5px;
+  }
+
+  /* Architecture */
+  .arch {
+    display: grid;
+    padding: 22px;
+    border-radius: var(--radius);
+    border: 1px dashed var(--border-strong);
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 20px 20px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 20px 20px,
+      var(--bg-soft);
+  }
+  .arch-label {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .arch-nodes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .arch-node {
+    display: grid;
+    gap: 2px;
+    min-width: 170px;
+    flex: 0 1 220px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-align: center;
+    background: var(--bg-elev);
+    border: 1px solid color-mix(in srgb, var(--c) 35%, var(--border));
+    box-shadow: var(--shadow);
+  }
+  .arch-node strong {
+    font-size: 14.5px;
+  }
+  .arch-node span {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .arch-arrow {
+    display: grid;
+    place-items: center;
+    height: 36px;
+  }
+  .arch-arrow span {
+    position: relative;
+    width: 2px;
+    height: 100%;
+    background: color-mix(in srgb, var(--c) 60%, transparent);
+  }
+  .arch-arrow span::before,
+  .arch-arrow span::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border: solid color-mix(in srgb, var(--c) 70%, transparent);
+    border-width: 0 2px 2px 0;
+  }
+  .arch-arrow span::after {
+    bottom: 0;
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .arch-arrow span::before {
+    top: 0;
+    transform: translateX(-50%) rotate(-135deg);
+  }
+
+  /* Gallery */
+  .hint {
+    margin: -10px 0 20px;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .g-group + .g-group {
+    margin-top: 32px;
+  }
+  .g-group h3 {
+    font-size: 15px;
+    margin-bottom: 14px;
+    color: var(--text-2);
+  }
+  .g-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr;
+  }
+  .g-grid.all-mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 640px) {
+    .g-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .g-grid.all-mobile {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .g-item {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+  .g-item.diagram {
+    grid-column: 1 / -1;
+  }
+  .g-item.mobile:not(.all-mobile *) {
+    max-width: 220px;
+  }
+  .g-item button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    cursor: zoom-in;
+    text-align: left;
+    transition: transform 0.2s ease;
+  }
+  .g-item button:hover {
+    transform: translateY(-3px);
+  }
+  .g-item .browser {
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow);
+  }
+  .g-item .phone {
+    padding: 5px;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+  .g-item .phone img {
+    border-radius: 19px;
+  }
+  .diagram-frame {
+    background: #fff !important;
+    border-radius: 12px;
+    border: 1px solid var(--border) !important;
+    padding: 12px !important;
+    overflow-x: auto;
+  }
+  .diagram-frame img {
+    min-width: 640px;
+  }
+  .g-item figcaption {
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Extra */
+  .extra + .extra {
+    margin-top: 32px;
+  }
+  .extra h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .extra > p {
+    color: var(--text-2);
+  }
+  .bullets {
+    display: grid;
+    gap: 8px;
+    padding-left: 20px;
+    color: var(--text-2);
+  }
+  .bullets li::marker {
+    color: var(--c);
+  }
+  .table-wrap {
+    margin-top: 20px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .table-wrap h4 {
+    padding: 14px 16px 0;
+    font-size: 14.5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    margin-top: 8px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td:nth-child(2) {
+    white-space: normal;
+    min-width: 200px;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 500;
+    background: var(--bg-soft);
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .callout {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--c) 9%, transparent);
+    border-left: 3px solid var(--c);
+    color: var(--text-2) !important;
+  }
+  .next-text {
+    color: var(--text-2);
+    font-size: 16.5px;
+  }
+  .cs-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    border-radius: var(--radius);
+    background:
+      radial-gradient(80% 120% at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+      var(--bg-elev);
+    border: 1px solid var(--border);
+  }
+  .cs-cta p {
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  /* Pager */
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-bottom: 64px;
+  }
+  .pager a {
+    display: grid;
+    gap: 4px;
+    padding: 18px 20px;
+    transition: border-color 0.2s ease;
+  }
+  .pager a:hover {
+    border-color: var(--accent);
+  }
+  .pager small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .pager .right {
+    text-align: right;
+    justify-items: end;
+  }
+  .pager strong {
+    font-size: 15.5px;
+  }
+</style>
+
+<script>
+  // Highlight the current section in the table of contents.
+  const links = new Map<string, HTMLAnchorElement>();
+  document.querySelectorAll<HTMLAnchorElement>('.toc nav a').forEach((a) => links.set(a.hash.slice(1), a));
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          links.forEach((a) => a.classList.remove('active'));
+          links.get(e.target.id)?.classList.add('active');
+        }
+      }
+    },
+    { rootMargin: '-30% 0px -60% 0px' },
+  );
+  document.querySelectorAll('.block[id]').forEach((s) => spy.observe(s));
+</script>

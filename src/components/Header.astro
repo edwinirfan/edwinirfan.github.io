@@ -1,0 +1,214 @@
+---
+import Icon from './Icon.astro';
+import { type Lang, localePath, useT } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+const { lang, path } = Astro.props;
+const t = useT(lang);
+const home = localePath(lang, '/');
+const other: Lang = lang === 'id' ? 'en' : 'id';
+const nav = [
+  { href: `${home}#projects`, label: t('nav.projects') },
+  { href: `${home}#experience`, label: t('nav.experience') },
+  { href: `${home}#services`, label: t('nav.services') },
+  { href: `${home}#skills`, label: t('nav.skills') },
+];
+---
+<header class="site-header">
+  <div class="container bar">
+    <a href={home} class="brand" aria-label="Edwin Irfan, home">
+      <span class="mono">EI</span>
+      <span class="brand-name">Edwin Irfan</span>
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+    </nav>
+
+    <div class="actions">
+      <a class="icon-btn lang" href={localePath(other, path)} hreflang={other} title={t('lang.switch')}>
+        <Icon name="globe" size={17} />
+        <span>{t('lang.switchShort')}</span>
+      </a>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label={t('theme.toggle')} title={t('theme.toggle')}>
+        <span class="i-sun"><Icon name="sun" size={18} /></span>
+        <span class="i-moon"><Icon name="moon" size={18} /></span>
+      </button>
+      <a class="btn btn-primary cta" href={`${home}#contact`}>{t('nav.contact')}</a>
+      <button class="icon-btn menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav">
+        <Icon name="menu" size={20} />
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+    <div class="container">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      <a href={`${home}#contact`}>{t('nav.contact')}</a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const header = document.querySelector('.site-header')!;
+  const btn = header.querySelector<HTMLButtonElement>('.menu-btn')!;
+  btn.addEventListener('click', () => {
+    const open = header.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  header.querySelectorAll('.mobile-nav a').forEach((a) =>
+    a.addEventListener('click', () => {
+      header.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }),
+  );
+  const onScroll = () => header.classList.toggle('scrolled', scrollY > 8);
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+  .site-header.scrolled {
+    border-bottom-color: var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 66px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .mono {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #f43f5e);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  .nav {
+    display: none;
+    gap: 4px;
+    margin-left: 12px;
+  }
+  .nav a,
+  .mobile-nav a {
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: var(--text-2);
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .nav a:hover {
+    color: var(--text);
+    background: var(--bg-soft);
+  }
+  .actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 38px;
+    min-width: 38px;
+    padding-inline: 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .icon-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .i-moon {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .i-sun {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .i-moon {
+    display: inline-flex;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .i-sun {
+      display: none;
+    }
+    :global(:root:not([data-theme='light'])) .i-moon {
+      display: inline-flex;
+    }
+  }
+  .i-sun,
+  .i-moon {
+    line-height: 0;
+  }
+  .cta {
+    display: none;
+    height: 38px;
+    padding-inline: 16px;
+    font-size: 14px;
+  }
+  .mobile-nav {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding-block: 10px 16px;
+  }
+  .mobile-nav .container {
+    display: grid;
+  }
+  .site-header.open .mobile-nav {
+    display: block;
+  }
+  .brand-name {
+    display: none;
+  }
+  @media (min-width: 420px) {
+    .brand-name {
+      display: inline;
+    }
+  }
+  @media (min-width: 900px) {
+    .nav {
+      display: flex;
+    }
+    .cta {
+      display: inline-flex;
+    }
+    .menu-btn {
+      display: none;
+    }
+    .site-header.open .mobile-nav {
+      display: none;
+    }
+  }
+</style>

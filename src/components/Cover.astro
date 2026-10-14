@@ -1,0 +1,145 @@
+---
+import Icon from './Icon.astro';
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+  eager?: boolean;
+}
+const { project, eager = false } = Astro.props;
+const { cover, accent, title } = project;
+const loading = eager ? 'eager' : 'lazy';
+---
+<div class="cover" style={`--c:${accent}`}>
+  <div class="glow" aria-hidden="true"></div>
+  {
+    cover.desktop && (
+      <div class={`browser shot ${cover.mobile ? 'with-phone' : ''}`}>
+        <div class="browser-bar">
+          <span />
+          <span />
+          <span />
+        </div>
+        <img src={cover.desktop} alt={title} loading={loading} decoding="async" />
+      </div>
+    )
+  }
+  {
+    cover.mobile && (
+      <div class="phone overlay">
+        <img src={cover.mobile} alt="" loading={loading} decoding="async" />
+      </div>
+    )
+  }
+  {
+    !cover.desktop && cover.icon && (
+      <div class="art" aria-hidden="true">
+        <div class="rings">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div class="badge">
+          <Icon name={cover.icon} size={44} />
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .cover {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 12px;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 22px 22px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 22px 22px,
+      color-mix(in srgb, var(--c) 8%, var(--bg-soft));
+    isolation: isolate;
+  }
+  .glow {
+    position: absolute;
+    inset: auto -20% -50% -20%;
+    height: 90%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 45%, transparent), transparent);
+    opacity: 0.55;
+    z-index: -1;
+  }
+  .shot {
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 10%;
+    transition: transform 0.5s ease;
+  }
+  .shot.with-phone {
+    right: 20%;
+  }
+  .overlay {
+    position: absolute;
+    width: 25%;
+    right: 6%;
+    top: 18%;
+    border-radius: 18px;
+    padding: 4px;
+    transition: transform 0.5s ease;
+  }
+  .overlay img {
+    border-radius: 14px;
+  }
+  .art {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  .badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 26px;
+    color: #fff;
+    background: linear-gradient(140deg, var(--c), color-mix(in srgb, var(--c) 55%, #000));
+    box-shadow: 0 20px 50px -14px var(--c);
+  }
+  .rings span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 1.5px dashed color-mix(in srgb, var(--c) 45%, transparent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 40s linear infinite;
+  }
+  .rings span:nth-child(1) {
+    width: 170px;
+    height: 170px;
+  }
+  .rings span:nth-child(2) {
+    width: 250px;
+    height: 250px;
+    animation-direction: reverse;
+  }
+  .rings span:nth-child(3) {
+    width: 340px;
+    height: 340px;
+    border-style: solid;
+    opacity: 0.4;
+  }
+  @keyframes spin {
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+  :global(a:hover) > .cover .shot,
+  :global(.project-card:hover) .cover .shot {
+    transform: translateY(-6px);
+  }
+  :global(.project-card:hover) .cover .overlay {
+    transform: translateY(-10px) rotate(-1.5deg);
+  }
+</style>
