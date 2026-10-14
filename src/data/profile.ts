@@ -68,35 +68,35 @@ export const principles: { title: L; body: L; icon: string }[] = [
 
 export const process: { title: L; body: L }[] = [
   {
-    title: { id: 'Analisis', en: 'Analyze' },
+    title: { id: 'Menganalisis', en: 'Analyze' },
     body: {
       id: 'Memetakan alur bisnis, pengguna, dan aturan main bersama stakeholder.',
       en: 'Map the business flow, users and rules together with stakeholders.',
     },
   },
   {
-    title: { id: 'Rancang', en: 'Design' },
+    title: { id: 'Merancang', en: 'Design' },
     body: {
       id: 'Arsitektur, skema database, hak akses, dan alur layar.',
       en: 'Architecture, database schema, access control and screen flows.',
     },
   },
   {
-    title: { id: 'Bangun', en: 'Build' },
+    title: { id: 'Membangun', en: 'Build' },
     body: {
       id: 'Development mobile, backend, dan web dengan test otomatis.',
       en: 'Mobile, backend and web development backed by automated tests.',
     },
   },
   {
-    title: { id: 'Uji', en: 'Test' },
+    title: { id: 'Menguji', en: 'Test' },
     body: {
       id: 'Dokumen UAT, skenario end-to-end, dan uji bersama pengguna.',
       en: 'UAT documents, end-to-end scenarios and testing with real users.',
     },
   },
   {
-    title: { id: 'Rilis & Rawat', en: 'Ship & Maintain' },
+    title: { id: 'Merilis & Memelihara', en: 'Ship & Maintain' },
     body: {
       id: 'Deploy ke server/store, monitoring, dan perbaikan berkelanjutan.',
       en: 'Deploy to servers/stores, monitor, and keep improving.',
