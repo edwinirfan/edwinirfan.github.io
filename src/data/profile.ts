@@ -415,7 +415,7 @@ export const skills: { group: L; items: (string | L)[] }[] = [
   {
     group: { id: 'Bahasa', en: 'Languages' },
     items: [
-      { id: 'Indonesia (bahasa ibu)', en: 'Indonesian (native)' },
+      { id: 'Indonesia', en: 'Indonesian' },
       { id: 'Inggris (technical proficiency)', en: 'English (technical proficiency)' },
     ],
   },
